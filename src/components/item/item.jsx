@@ -1,38 +1,35 @@
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { contextoIndex } from "../../context";
+import { useDispatch, useSelector } from "react-redux";
+import { favoritesActions } from "../../store/favorites";
+import Heart from "../Heart";
 import "./item.css";
-import Heart from "../../components/Heart";
 
-function Item ( { item } ) {
-    const navegar = useNavigate();
+function Item({ item }) {
+    const favorites = useSelector(({ favorites }) => favorites);
+    const dispatch = useDispatch();
 
-	 const contexto = useContext(contextoIndex);
-	 const isFavorite = contexto.favoritos?.includes(item.id) || false;
+    const { name, sprites } = item;
+    const sprite = sprites.other["official-artwork"].front_default;
+    const isFavorite = favorites.includes(item.id);
 
-    const clicar = () => {
-        navegar(`/detalhes/${item.id}`);
+    const handleClick = () => {
+        if (isFavorite) {
+            dispatch(favoritesActions.remove(item));
+        } else {
+            dispatch(favoritesActions.add(item));
+        }
     };
 
-	 const marcar = () => {
-		if (isFavorite) {
-			contexto.remover(item);
-		} else {
-			contexto.adicionar(item);
-		}
-	 };
-
     return (
-        <li className="item-lista">
-				<div className="imagem-caixa">
-					<img className="imagem" alt={item.name} src={item.sprites.other["official-artwork"].front_default} />
-				</div>
-            <p className="item-nome">{ item.name }</p>
-				< div className="lista-coracao">
-					<Heart onClick={marcar} selected ={isFavorite}/>
-				</div>
+        <li className="list-item">
+            <div className="list-item-image-wrapper">
+                <img alt={name} className="list-item-image" src={sprite} />
+            </div>
+            <p>{name}</p>
+            <div className='list-item-heart-wrapper'>
+                <Heart onClick={handleClick} selected={isFavorite} />
+            </div>
         </li>
     );
-};
+}
 
 export default Item;
